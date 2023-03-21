@@ -14,6 +14,7 @@ let lastTime = 0;
 let ravens = [];
 let score = 0;
 let gameOver = false;
+let play = false;
 
 class Raven {
     constructor() {
@@ -24,7 +25,7 @@ class Raven {
         this.height = this.spriteHeight * this.sizeModifier;
         this.x = canvas.width;
         const hCalculation = Math.random() * canvas.height - this.height;
-        this.y = hCalculation < 0 ? 0: hCalculation;
+        this.y = hCalculation < 0 ? 0 : hCalculation;
         this.directionX = Math.random() * 5 + 3;
         this.directionY = Math.random() * 5 - 2.5;
         this.markedForDeletion = false;
@@ -157,9 +158,9 @@ const background = new Background(canvas.width, canvas.height);
 
 function drawScore() {
     ctx.fillStyle = 'black';
-    ctx.fillText('Score :' + score, 50, 75);
+    ctx.fillText('Score :' + score, 150, 75);
     ctx.fillStyle = 'white';
-    ctx.fillText('Score :' + score, 55, 80);
+    ctx.fillText('Score :' + score, 155, 80);
 }
 
 function drawGameOver() {
@@ -168,9 +169,32 @@ function drawGameOver() {
     ctx.fillText('Game Over, your score is ' + score, canvas.width / 2, canvas.height / 2);
     ctx.fillStyle = 'white';
     ctx.fillText('Game Over, your score is ' + score, canvas.width / 2 + 5, canvas.height / 2 + 5);
+    ctx.fillStyle = 'black';
+    ctx.fillText('Click to restart game', canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillStyle = 'white';
+    ctx.fillText('Click to restart game', canvas.width / 2, canvas.height / 2 + 55);
+}
+
+function drawStartGame() {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'black';
+    ctx.fillText('Click to start game', canvas.width / 2, canvas.height / 2);
+    ctx.fillStyle = 'white';
+    ctx.fillText('Click to start game', canvas.width / 2 + 5, canvas.height / 2 + 5);
 }
 
 window.addEventListener('click', function (e) {
+    if (!play) {
+        play = true;
+    };
+    if (play && gameOver) {
+        gameOver = false;
+        ravens = [];
+        explosions = [];
+        particles = [];
+        score = 0;
+        animate(0);
+    };
     const detectPixelColor = collisionCtx.getImageData(e.x, e.y, 1, 1);
     const pc = detectPixelColor.data;
     ravens.forEach(object => {
@@ -185,24 +209,29 @@ window.addEventListener('click', function (e) {
 function animate(timeStamp) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     collisionCtx.clearRect(0, 0, canvas.width, canvas.height);
-    let deltaTime = timeStamp - lastTime;
-    lastTime = timeStamp;
-    timeToNextRaven += deltaTime;
-    if (timeToNextRaven > ravenInterval) {
-        ravens.push(new Raven());
-        timeToNextRaven = 0;
-        ravens.sort((a, b) => {
-            return a.width - b.width;
-        });
-    }
     background.draw();
     background.update();
-    this.drawScore();
-    [...particles, ...ravens, ...explosions].forEach(object => object.update(deltaTime));
-    [...particles, ...ravens, ...explosions].forEach(object => object.draw());
-    ravens = ravens.filter(object => !object.markedForDeletion);
-    explosions = explosions.filter(object => !object.markedForDeletion);
-    particles = particles.filter(object => !object.markedForDeletion);
+    if (!play) {
+        this.drawStartGame();
+    }
+    if (play) {
+        let deltaTime = timeStamp - lastTime;
+        lastTime = timeStamp;
+        timeToNextRaven += deltaTime;
+        if (timeToNextRaven > ravenInterval) {
+            ravens.push(new Raven());
+            timeToNextRaven = 0;
+            ravens.sort((a, b) => {
+                return a.width - b.width;
+            });
+        }
+        this.drawScore();
+        [...particles, ...ravens, ...explosions].forEach(object => object.update(deltaTime));
+        [...particles, ...ravens, ...explosions].forEach(object => object.draw());
+        ravens = ravens.filter(object => !object.markedForDeletion);
+        explosions = explosions.filter(object => !object.markedForDeletion);
+        particles = particles.filter(object => !object.markedForDeletion);
+    }
     if (!gameOver) requestAnimationFrame(animate);
     else this.drawGameOver();
 }
