@@ -23,7 +23,8 @@ class Raven {
         this.width = this.spriteWidth * this.sizeModifier;
         this.height = this.spriteHeight * this.sizeModifier;
         this.x = canvas.width;
-        this.y = Math.random() * canvas.height - (this.height * 2);
+        const hCalculation = Math.random() * canvas.height - this.height;
+        this.y = hCalculation < 0 ? 0: hCalculation;
         this.directionX = Math.random() * 5 + 3;
         this.directionY = Math.random() * 5 - 2.5;
         this.markedForDeletion = false;
