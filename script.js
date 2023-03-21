@@ -144,8 +144,8 @@ class Background {
     }
 
     draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.gameWidth, this.gameHeight);
-        ctx.drawImage(this.image, this.x + this.gameWidth - this.speed, this.y, this.gameWidth, this.gameHeight);
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.gameHeight);
+        ctx.drawImage(this.image, this.x + this.width - this.speed, this.y, this.width, this.gameHeight);
     }
 
     update() {
